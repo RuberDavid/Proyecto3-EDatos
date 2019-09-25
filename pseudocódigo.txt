@@ -1,0 +1,11 @@
+\\inicializa una arreglo de archivos y los abre, el primero será el archivo de entrada
+\\Recorre el arreglo de archivos hasta el penúltimo
+\\	lee el archivo actual en una lista
+\\	escribe aleatoriamente en el archivo siguiente los datos de la lista
+\\lee una dirección de memoria dada
+\\si está en el "sistema" de archivos
+\\	imprime la ubicación de este en los tres archivos de salida
+\\si no
+\\	imprime mensaje acerca de esto
+	
+
