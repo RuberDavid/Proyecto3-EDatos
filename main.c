@@ -27,9 +27,12 @@ void pop_front(List* );
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 FILE *open_file(const char *file_name, const char* mode);
 int close_file(FILE *fptr);
+void init_random_acces_file( FILE* arch,const unsigned count,  int val);
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-unsigned lfsr(const uint16_t seed);
+unsigned seed;//semilla de la función de randomización 
+//función de randomización
+unsigned lfsr(void);
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
@@ -39,7 +42,8 @@ int main()
 	char nombre[FILE_NAME_SIZE];
 	List direcciones=NULL;
 	unsigned int in_dir;
-	int contador;
+	unsigned int contador;
+	seed=  (uint16_t) time(NULL) ;
 
 	printf("\n\tintroduzca el nombre del archivo:\n\t");
 	scanf("%30s", nombre);
@@ -49,6 +53,8 @@ int main()
 	archivos[1]=open_file("salida1","rb+");
 	archivos[2]=open_file("salida2","rb+");
 	archivos[3]=open_file("salida3","rb+");
+
+	
 
 	contador=0;
 
@@ -65,13 +71,19 @@ int main()
 				contador++;
 		}
 
+		if( i == 0 )
+			//inicializar archivos
+			for( int j=1; i<4 ; i++)
+				init_random_acces_file( archivos[j] , contador, 0);
+
 		//escribe aleatoriamente en el archivo siguiente los datos de la lista
 		while( !empty( direcciones ) )
 		{
 			//función de randomización
-			unsigned int val= lfsr( (uint16_t) time(NULL) );
-			printf("rand: %u", val);
-			pop_front( &direcciones );
+			lfsr();
+			
+			//if(0 ) TODO
+			pop_front( &direcciones ) ;
 
 		}
 	}
@@ -156,16 +168,30 @@ int close_file(FILE *fptr)
 		perror("Close failed");
 	return s;
 }
+
+void init_random_acces_file( FILE* arch,const unsigned count,  int val)
+{
+	for(int i=0; i< count+1 ; i++)
+	{
+		fseek( arch, i*sizeof( int ) , SEEK_SET );
+		fwrite( &val, sizeof( val ), 1, arch );
+
+	}
+
+
+}
+
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
-unsigned lfsr(const uint16_t seed)
+unsigned lfsr(void)
 //función para números pseudo-aleatorios usando un Linear-feedback shift register
 {
 	uint16_t lfsr = seed; 
 	uint16_t bit; //se define un entero de 16 bits para permitir operaciónes como <<15
 
-	bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) /* & 1u */;
-	lfsr = (lfsr >> 1) | (bit << 15);
+	bit= ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) /* & 1u */;
+	lfsr= (lfsr >> 1) | (bit << 15);
+	seed= lfsr;
 
 	return lfsr;
 }
